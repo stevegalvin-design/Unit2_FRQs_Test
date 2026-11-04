@@ -1,0 +1,874 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP Stats Unit 2 Test Builder &amp; Exam Simulator</title>
+    <style>
+        :root { --cb-blue: #003366; --cb-dark: #001f3f; --bg-gray: #f4f6f9; --border-color: #cccccc; --correct-green: #28a745; --incorrect-red: #dc3545; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: var(--bg-gray); color: #222; }
+        .hidden { display: none !important; }
+
+        /* PORTAL STYLES */
+        .portal-header { background: var(--cb-blue); color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .portal-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+        .config-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .config-card label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 1.05rem; }
+        .config-card input[type="text"] { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; }
+
+        .bank-section { margin-bottom: 30px; }
+        .bank-section h2 { color: var(--cb-blue); margin-bottom: 12px; font-size: 1.3rem; border-bottom: 2px solid var(--cb-blue); padding-bottom: 6px; }
+        .item-card { background: white; border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; margin-bottom: 12px; display: flex; gap: 16px; align-items: flex-start; }
+        .item-card input[type="checkbox"] { width: 20px; height: 20px; margin-top: 4px; cursor: pointer; }
+        .item-content { flex: 1; }
+        .item-title { font-weight: bold; margin-bottom: 4px; color: #333; }
+        .item-topic { font-size: 0.85rem; font-weight: 600; color: #0056b3; background: #e7f1ff; display: inline-block; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+        .item-full-text { font-size: 0.95rem; color: #222; line-height: 1.5; margin-top: 6px; }
+
+        .launch-bar { position: sticky; bottom: 0; background: white; border-top: 2px solid var(--border-color); padding: 16px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 12px rgba(0,0,0,0.1); }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+        .btn-print { background: #6c757d; color: white; }
+        .btn-digital { background: var(--cb-blue); color: white; }
+        .btn-digital:hover { background: var(--cb-dark); }
+        .btn-export { background: #28a745; color: white; }
+        .btn-export:hover { background: #218838; }
+
+        table.data-table { border-collapse: collapse; margin: 10px 0; font-size: 0.9rem; width: 100%; max-width: 500px; }
+        table.data-table th, table.data-table td { border: 1px solid var(--border-color); padding: 6px 10px; text-align: center; }
+        table.data-table th { background: #f1f3f5; }
+
+        /* BLUEBOOK SIMULATOR STYLES */
+        #student-view { height: 100vh; display: flex; flex-direction: column; background: #fafafa; }
+        .bb-topbar { background: var(--cb-blue); color: white; height: 50px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-weight: bold; }
+        .bb-tools { display: flex; gap: 10px; }
+        .bb-tool-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
+        .bb-main { display: flex; flex: 1; overflow: hidden; }
+        .bb-pane { flex: 1; padding: 24px; overflow-y: auto; }
+        .bb-pane-left { border-right: 1px solid var(--border-color); background: white; }
+        .symbol-toolbar { background: #f1f3f5; border: 1px solid var(--border-color); border-bottom: none; border-radius: 6px 6px 0 0; padding: 8px; display: flex; gap: 6px; align-items: center; }
+        .symbol-select { padding: 6px; border-radius: 4px; border: 1px solid var(--border-color); font-size: 0.9rem; }
+        .bb-textarea { width: 100%; height: 250px; padding: 12px; border: 1px solid var(--border-color); border-radius: 0 0 6px 6px; font-size: 1rem; line-height: 1.5; font-family: inherit; resize: vertical; }
+        .mcq-options { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+        .mcq-option-label { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 6px; background: white; cursor: pointer; }
+        .bb-footer { height: 60px; background: white; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; width: 80%; max-width: 900px; height: 80%; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 12px 20px; background: var(--cb-blue); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { flex: 1; padding: 20px; overflow-y: auto; }
+        .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+#desmos-modal .modal-content { width: 100%; max-width: none; height: 100%; border-radius: 0; }
+#lockout-warning-modal, #hard-lockout-modal { z-index: 2000; }
+
+        /* PRINT PACKET STYLES */
+        #print-test-packet { display: none; padding: 20px; background: white; color: black; font-family: Arial, sans-serif; }
+        .print-header { text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }
+        .print-student-info { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; }
+        .print-item { margin-bottom: 30px; page-break-inside: avoid; }
+        .print-item-title { font-weight: bold; font-size: 1.05rem; margin-bottom: 8px; }
+        .print-mcq-choices { margin-top: 10px; margin-left: 15px; display: flex; flex-direction: column; gap: 6px; }
+        .print-frq-workspace { border: 1px dashed #666; height: 220px; margin-top: 12px; border-radius: 4px; background: #fafafa; }
+
+        @media print {
+            .portal-header, .config-card, .bank-section h2, .launch-bar, .item-card input, 
+            #student-view, .bb-tools, .symbol-toolbar, .modal, button { display: none !important; }
+            
+            body { background: white; color: black; }
+            
+            body.printing-blank-paper #teacher-portal,
+            body.printing-blank-paper #teacher-review-view { display: none !important; }
+            body.printing-blank-paper #print-test-packet { display: block !important; }
+
+            body.printing-graded-submission #teacher-portal,
+            body.printing-graded-submission #print-test-packet,
+            body.printing-graded-submission #student-view { display: none !important; }
+            body.printing-graded-submission #teacher-review-view { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+        }
+    </style>
+<script>window.PRE_CONFIGURED_TEST_DATA = {"title":"AP Statistics - Unit 2 Test (Probability & Random Variables)","passcode":"0618","mcqs":[],"frqs":["frq1","frq2","frq4","frq5","frq6"]};</script>
+</head>
+<body class="printing-blank-paper">
+
+    <div id="print-test-packet"></div>
+
+    <!-- VIEW 1: TEACHER SELECTION PORTAL -->
+    <div id="teacher-portal">
+        <header class="portal-header">
+            <div>
+                <h1>AP Statistics Test Builder — Unit 2: Probability</h1>
+                <span style="font-size: 0.9rem; opacity: 0.9;">CED Standards Aligned Question Pool</span>
+            </div>
+        </header>
+
+        <div class="portal-container">
+            <div class="config-card">
+                <label for="test-title-input">Assessment Title:</label>
+                <input type="text" id="test-title-input" value="AP Statistics - Unit 2 Test (Probability &amp; Random Variables)" style="margin-bottom: 16px;">
+                
+                <label for="teacher-passcode-input">Teacher Lockout Override Passcode:</label>
+                <input type="text" id="teacher-passcode-input" value="1234" placeholder="Enter override PIN (e.g. 1234)" style="width: 250px;">
+                <span style="font-size: 0.85rem; color: #666; margin-left: 10px;">Used to unlock a student's exam if hard lockout triggers.</span>
+            </div>
+
+            <div class="bank-section">
+                <h2>Multiple Choice Question Bank (60 Items)</h2>
+                <div id="mcq-bank-container"></div>
+            </div>
+
+            <div class="bank-section">
+                <h2>Free Response Question Bank (12 Items)</h2>
+                <div id="frq-bank-container">
+                <div class="item-card">
+                    <input type="checkbox" id="frq1" class="frq-checkbox" onchange="updateCounts()">
+                    <div class="item-content">
+                        <div class="item-title">FRQ 1: Gym Equipment Use (10 points)</div>
+                        <div class="item-topic">Topic 2.3: General Probability &amp; Tree Diagrams</div>
+                        <div class="item-full-text">A gym tracks equipment use among 300 members. 120 used the treadmill (T), 90 used the rowing machine (R), and 45 used both. Create a Venn Diagram to assist you in answering these problems (you do not have to turn in your drawing).<br><br><b>(a)</b> Find P(T or R)<br><b>(b)</b> Find P(Neither T nor R)<br><b>(c)</b> Find P(T|R). Show your calculation.<br><b>(d)</b> Find P(R|not T)</div>
+                    </div>
+                </div>
+            
+                <div class="item-card">
+                    <input type="checkbox" id="frq2" class="frq-checkbox" onchange="updateCounts()">
+                    <div class="item-content">
+                        <div class="item-title">FRQ 2: Normal Probability (10 points)</div>
+                        <div class="item-topic">Topic 2.6: Normal Distribution Models</div>
+                        <div class="item-full-text">A city's Department of Transportation says that daily commute times for downtown workers is approximately Normal with mean μ = 32 minutes and standard deviation σ = 7 minutes.<br><br><b>(a)</b> Define a variable X as the number of minutes of a randomly chosen downtown driver's daily commute time. Give the correct normal probability statement for X using the proper notation.<br><b>(b)</b> Find the probability that a randomly selected commuter's travel time is less than 25 minutes. Make sure to show your work: express the question using probability notation, show your calculator "speak", and interpret the answer in context with a complete sentence.<br><b>(c)</b> Find the probability that a randomly selected commuter's travel time is between 25 and 39 minutes. Make sure to show your work: express the question using probability notation, show your calculator "speak", and interpret the answer in context with a complete sentence.<br><b>(d)</b> What commute time represents the 90th percentile of the distribution? Make sure to show your work: express the question using probability notation, show your calculator "speak", and interpret the answer in context with a complete sentence.</div>
+                    </div>
+                </div>
+            
+                <div class="item-card">
+                    <input type="checkbox" id="frq3" class="frq-checkbox" onchange="updateCounts()">
+                    <div class="item-content">
+                        <div class="item-title">FRQ 3: Discrete Random Variables &amp; Expected Value (10 points)</div>
+                        <div class="item-topic">Topic 2.4: Discrete Random Variables</div>
+                        <div class="item-full-text">Based on this season's data, the probability distribution for the number of goals X scored by a soccer team in a single match is shown in the table below.<br><br><table class="data-table"><tbody><tr><th>x</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr><tr><td><b>P(X = x)</b></td><td>0.08</td><td>0.22</td><td>0.30</td><td>0.25</td><td>0.10</td><td>0.05</td></tr></tbody></table><br><b>(a)</b> Verify that this is a valid probability distribution. Show your work.<br><b>(b)</b> Find P(X ≥ 3). Interpret your answer in context.<br><b>(c)</b> Calculate the expected value E(X) = μ_X. Show all work and interpret in context.<br><b>(d)</b> Calculate the standard deviation σ_X. Show all work and round to two decimal places. Interpret the standard deviation in context.</div>
+                    </div>
+                </div>
+            
+                <div class="item-card">
+                    <input type="checkbox" id="frq4" class="frq-checkbox" onchange="updateCounts()">
+                    <div class="item-content">
+                        <div class="item-title">FRQ 4: Two-Way Tables and Probability (10 points)</div>
+                        <div class="item-topic">Topic 2.1: Two-Way Tables &amp; Conditional Probability</div>
+                        <div class="item-full-text">In a survey of 200 students at a small high school, Language Arts teachers wanted to see if there is a correlation between preferred fiction genre and preferred reading format, the results are summarized in the following table.<br><br><table class="data-table"><tbody><tr><th>Genre</th><th>Print book</th><th>E-book</th><th>Audiobook</th><th>Total</th></tr><tr><td><b>Fantasy / Sci-Fi</b></td><td>34</td><td>22</td><td>14</td><td>70</td></tr><tr><td><b>Mystery / Thriller</b></td><td>26</td><td>18</td><td>31</td><td>75</td></tr><tr><td><b>Romance</b></td><td>20</td><td>25</td><td>10</td><td>55</td></tr><tr><td><b>Total</b></td><td>80</td><td>65</td><td>55</td><td>200</td></tr></tbody></table><br>Suppose that one of these students is randomly chosen. Answer each of the following questions using appropriate probability notation, and a decimal approximation. Then interpret each answer in context with a complete sentence.<br><br><b>(a)</b> What is the probability that the student prefers mystery/thriller or E-book?<br><b>(b)</b> What is the probability that a student who prefers Romance also prefers to use an Audiobook?<br><b>(c)</b> What is the probability that a student who prefers to use a print book also prefers to read Fantasy/Sci-Fi?</div>
+                    </div>
+                </div>
+            
+                <div class="item-card">
+                    <input type="checkbox" id="frq5" class="frq-checkbox" onchange="updateCounts()">
+                    <div class="item-content">
+                        <div class="item-title">FRQ 5: Binomial Probability (10 points)</div>
+                        <div class="item-topic">Topic 2.8: Binomial Probability Distributions</div>
+                        <div class="item-full-text">Sea turtle nest hatching: A conservation team checks 50 eggs from some loggerhead nests. Each egg has about a 70% chance of hatching. Let X = the number of hatchlings.<br><br><b>(a)</b> Verify that the conditions for a binomial setting are satisfied. Use complete sentences and context, just like BIFS would do.<br><br><b>(b)</b> How many eggs do you expect to hatch in a group of 50 eggs? With what standard deviation? Show your work, including the formulas used and interpret them both in context.<br><br><b>(c)</b> What is the probability that exactly 30 eggs hatch? Show your work: express the probability question symbolically, show your calculator speak, and interpret your answer in context.<br><br><b>(d)</b> What is the probability that 42 or more eggs hatch? Show your work: Express the probability question symbolically, show your calculator speak, and interpret your answer in context.<br><br><b>(e)</b> If a researcher wanted to calculate the probability from part d using a normal approximation, would they be justified in doing so? Explain your answer concisely.</div>
+                    </div>
+                </div>
+            
+                <div class="item-card">
+                    <input type="checkbox" id="frq6" class="frq-checkbox" onchange="updateCounts()">
+                    <div class="item-content">
+                        <div class="item-title">FRQ 6: Tree Diagram</div>
+                        <div class="item-topic">Topic 2.3: General Probability &amp; Tree Diagrams</div>
+                        <div class="item-full-text">In a certain population of birds, only 3% have blue eyes. Of those who have blue eyes, 56% have a curved beak. Of those who do not have blue eyes, 13% have a straight beak. If one of these birds is trapped in a net (randomly), answer each of the following questions. Show your work: express the probability question symbolically, show your math, and interpret your answer in context. Consider drawing a tree diagram.<br><br><b>(a)</b> What is the probability that the bird has blue eyes and a straight beak?<br><b>(b)</b> What is the probability that the bird has a curved beak?</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div class="launch-bar">
+            <div>
+                Selected: <strong id="selected-mcq-count">0</strong> MCQs | <strong id="selected-frq-count">5</strong> FRQs
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-export" onclick="exportStandaloneStudentHTML()">💾 Export Standalone Student Test (.html)</button>
+                <button class="btn btn-print" onclick="prepareAndPrintPaperTest()">🖨️ Print Paper Test</button>
+<button class="btn btn-print" onclick="printAnswerKey()">🔑 Print Answer Key</button>
+                <button class="btn btn-digital" onclick="launchDigitalBluebookExam()">▶️ Preview Digital Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 2: STUDENT BLUEBOOK EXAM SIMULATOR -->
+    <div id="student-view" class="hidden">
+        <div class="bb-topbar">
+            <div>
+                <span id="bb-exam-title">AP Statistics Exam</span>
+                <span id="bb-student-tag" style="margin-left: 15px; font-weight: normal; opacity: 0.85;"></span>
+            </div>
+            <div class="bb-tools">
+                <button class="bb-tool-btn" onclick="openModal('desmos-modal')">🧮 Desmos Graphing Calculator</button>
+                <button class="bb-tool-btn" onclick="openModal('formula-modal')">📄 Formula Sheet (Unit 2)</button>
+            </div>
+        </div>
+
+        <div class="bb-main">
+            <div class="bb-pane bb-pane-left">
+                <h3 id="bb-question-number" style="margin-bottom: 12px; color: var(--cb-blue);">Question 1</h3>
+                <div id="bb-question-prompt" style="font-size: 1.05rem; line-height: 1.6;"></div>
+            </div>
+
+            <div class="bb-pane bb-pane-right">
+                <div id="bb-mcq-container" class="mcq-options"></div>
+
+                <div id="bb-frq-container" class="hidden">
+                    <div class="symbol-toolbar">
+                        <span style="font-size: 0.85rem; font-weight: bold;">Insert Math Symbol:</span>
+                        <select class="symbol-select" onchange="insertSymbol(this.value); this.selectedIndex=0;">
+                            <option value="" disabled="" selected="">Select Symbol...</option>
+                            <optgroup label="Probability Notation">
+                                <option value="P(A)">P(A)</option>
+                                <option value="P(A ∩ B)">P(A ∩ B) [Intersection / AND]</option>
+                                <option value="P(A ∪ B)">P(A ∪ B) [Union / OR]</option>
+                                <option value="P(A|B)">P(A|B) [Conditional]</option>
+                                <option value="P(Aᶜ)">P(Aᶜ) [Complement]</option>
+                            </optgroup>
+                            <optgroup label="Greek &amp; Parameters">
+                                <option value="μ">μ (Mean / Expected Value)</option>
+                                <option value="σ">σ (Standard Deviation)</option>
+                                <option value="σ²">σ² (Variance)</option>
+                                <option value="p̂">p̂ (Sample Proportion)</option>
+                                <option value="x̄">x̄ (Sample Mean)</option>
+                            </optgroup>
+                            <optgroup label="Inequalities &amp; Operators">
+                                <option value="≤">≤ (Less than or equal)</option>
+                                <option value="≥">≥ (Greater than or equal)</option>
+                                <option value="≠">≠ (Not equal)</option>
+                                <option value="±">± (Plus or minus)</option>
+                                <option value="√">√ (Square root)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <textarea id="frq-response-input" class="bb-textarea" placeholder="Type your full AP FRQ solution here..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="bb-footer">
+            <button class="btn" style="background: #e9ecef;" onclick="navigateQuestion(-1)">← Previous</button>
+            <span id="bb-question-tracker">Question 1 of 5</span>
+            <button id="bb-next-btn" class="btn btn-digital" onclick="navigateQuestion(1)">Next →</button>
+        </div>
+    </div>
+
+    <!-- VIEW 3: GRADED SUBMISSION REVIEW PAGE -->
+    <div id="teacher-review-view" class="hidden" style="padding: 30px; max-width: 1000px; margin: auto;">
+        <div style="background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h1 style="color: var(--cb-blue); margin-bottom: 8px;">Graded Exam Submission</h1>
+                    <p style="font-size: 1.1rem; color: #555;">Assessment: <strong id="review-test-title"></strong></p>
+                    <p style="font-size: 1.05rem; margin-top: 4px;">Student: <strong id="review-student-name">Preview Student</strong> | Period: <strong id="review-student-period">N/A</strong></p>
+                </div>
+                <button class="btn btn-export" onclick="printGradedSubmissionPDF()">📥 Save / Print PDF Report</button>
+            </div>
+            <div id="mcq-score-banner" style="background: #e6f4ea; border: 1px solid var(--correct-green); padding: 16px; border-radius: 6px; margin-top: 16px; font-size: 1.2rem; font-weight: bold; color: #137333;"></div>
+            <div id="security-audit-banner" style="background: #fff3cd; border: 1px solid #ffeba2; padding: 12px 16px; border-radius: 6px; margin-top: 12px; font-size: 0.95rem; color: #856404;"></div>
+        </div>
+
+        <div id="review-mcq-results" style="margin-bottom: 30px;">
+            <h2 style="color: var(--cb-blue); border-bottom: 2px solid var(--cb-blue); padding-bottom: 6px; margin-bottom: 16px;">MCQ Auto-Graded Breakdown</h2>
+            <div id="review-mcq-list"></div>
+        </div>
+
+        <div id="review-frq-results">
+            <h2 style="color: var(--cb-blue); border-bottom: 2px solid var(--cb-blue); padding-bottom: 6px; margin-bottom: 16px;">FRQ Responses for Teacher Grading</h2>
+            <div id="review-frq-list"></div>
+        </div>
+    </div>
+
+    <!-- MODALS & LOCKOUT OVERLAYS -->
+    <div id="lockout-warning-modal" class="modal hidden">
+        <div class="modal-content" style="height: auto; max-width: 500px; text-align: center; border-top: 6px solid #ffc107;">
+            <div class="modal-header" style="background: #ffc107; color: #222;">
+                <h3>⚠️ Exam Window Warning</h3>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <p style="font-size: 1.1rem; font-weight: bold; margin-bottom: 12px; color: #856404;">You navigated away from the exam window!</p>
+                <p style="font-size: 0.95rem; color: #444; margin-bottom: 20px;">This action has been logged in your exam audit trail. Navigating away again will lock your exam and require teacher unlocking.</p>
+                <button class="btn btn-digital" onclick="closeModal('lockout-warning-modal')">Resume Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="hard-lockout-modal" class="modal hidden">
+        <div class="modal-content" style="height: auto; max-width: 500px; text-align: center; border-top: 6px solid var(--incorrect-red);">
+            <div class="modal-header" style="background: var(--incorrect-red);">
+                <h3>🔒 EXAM LOCKED</h3>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <p style="font-size: 1.1rem; font-weight: bold; color: var(--incorrect-red); margin-bottom: 12px;">Multiple Window Departures Detected</p>
+                <p style="font-size: 0.95rem; color: #444; margin-bottom: 20px;">Your exam is currently locked. Please raise your hand and ask your teacher to unlock your test.</p>
+                <input type="password" id="teacher-unlock-passcode" placeholder="Enter Teacher Passcode" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; width: 80%; font-size: 1rem; text-align: center; margin-bottom: 16px;">
+                <br>
+                <button class="btn btn-export" onclick="attemptTeacherUnlock()">Unlock Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="student-name-modal" class="modal hidden">
+        <div class="modal-content" style="height: auto; max-width: 480px; padding: 10px;">
+            <div class="modal-header">
+                <h3>Student Exam Entry</h3>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 6px;">Student Full Name:</label>
+                    <input type="text" id="entry-student-name" placeholder="e.g., Jane Doe" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 6px;">Class Period / Section:</label>
+                    <input type="text" id="entry-student-period" placeholder="e.g., Period 3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
+                </div>
+                <button class="btn btn-digital" style="width: 100%; padding: 14px;" onclick="confirmStudentEntryAndStart()">🚀 Begin Assessment</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="desmos-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Desmos Graphing Calculator</h3>
+            <button class="close-btn" onclick="closeModal('desmos-modal')">×</button>
+        </div>
+        <div class="modal-body" style="padding:0;">
+            <iframe src="https://www.desmos.com/calculator" width="100%" height="100%" style="border:none;"></iframe>
+        </div>
+    </div>
+</div>
+
+    <div id="formula-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>AP Statistics Formula Sheet (Unit 2: Probability Focus)</h3>
+                <button class="close-btn" onclick="closeModal('formula-modal')">×</button>
+            </div>
+            <div class="modal-body">
+                <h4>Probability Formulas:</h4>
+                <p style="margin: 8px 0;">• <strong>Conditional Probability:</strong> P(A|B) = P(A ∩ B) / P(B)</p>
+                <p style="margin: 8px 0;">• <strong>Addition Rule:</strong> P(A ∪ B) = P(A) + P(B) - P(A ∩ B)</p>
+                <p style="margin: 8px 0;">• <strong>Multiplication Rule (Independent Events):</strong> P(A ∩ B) = P(A) × P(B)</p>
+
+                <h4 style="margin-top: 15px;">Discrete Random Variables:</h4>
+                <p style="margin: 8px 0;">• <strong>Mean / Expected Value:</strong> μ_X = E(X) = Σ [x_i × P(x_i)]</p>
+                <p style="margin: 8px 0;">• <strong>Variance:</strong> σ_X² = Σ [(x_i - μ_X)² × P(x_i)]</p>
+
+                <h4 style="margin-top: 15px;">Binomial Probability Distribution:</h4>
+                <p style="margin: 8px 0;">• P(X = k) = (n! / (k!(n-k)!)) × p^k × (1-p)^(n-k)</p>
+                <p style="margin: 8px 0;">• <strong>Mean:</strong> μ_X = np &nbsp;|&nbsp; <strong>Standard Deviation:</strong> σ_X = √(np(1-p))</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mcqTopics = [
+            "Topic 2.1: Two-Way Tables & Conditional Probability",
+            "Topic 2.2: Testing for Independence",
+            "Topic 2.3: General Probability & Tree Diagrams",
+            "Topic 2.4: Discrete Random Variables",
+            "Topic 2.6: Normal Distribution Models",
+            "Topic 2.8: Binomial Probability Distributions",
+            "Topic 2.9: Normal Approximation to Binomial"
+        ];
+
+        const mcqBank = [];
+
+const frqBank = [
+    { id: "frq1", topic: mcqTopics[2], title: "FRQ 1: Gym Equipment Use (10 points)", prompt: "A gym tracks equipment use among 300 members. 120 used the treadmill (T), 90 used the rowing machine (R), and 45 used both. Create a Venn Diagram to assist you in answering these problems (you do not have to turn in your drawing).<br><br><b>(a)</b> Find P(T or R)<br><b>(b)</b> Find P(Neither T nor R)<br><b>(c)</b> Find P(T|R). Show your calculation.<br><b>(d)</b> Find P(R|not T)" },
+    { id: "frq2", topic: mcqTopics[4], title: "FRQ 2: Normal Probability (10 points)", prompt: "A city's Department of Transportation says that daily commute times for downtown workers is approximately Normal with mean μ = 32 minutes and standard deviation σ = 7 minutes.<br><br><b>(a)</b> Define a variable X as the number of minutes of a randomly chosen downtown driver's daily commute time. Give the correct normal probability statement for X using the proper notation.<br><b>(b)</b> Find the probability that a randomly selected commuter's travel time is less than 25 minutes. Make sure to show your work: express the question using probability notation, show your calculator &quot;speak&quot;, and interpret the answer in context with a complete sentence.<br><b>(c)</b> Find the probability that a randomly selected commuter's travel time is between 25 and 39 minutes. Make sure to show your work: express the question using probability notation, show your calculator &quot;speak&quot;, and interpret the answer in context with a complete sentence.<br><b>(d)</b> What commute time represents the 90th percentile of the distribution? Make sure to show your work: express the question using probability notation, show your calculator &quot;speak&quot;, and interpret the answer in context with a complete sentence." },
+    { id: "frq3", topic: mcqTopics[3], title: "FRQ 3: Discrete Random Variables & Expected Value (10 points)", prompt: "Based on this season's data, the probability distribution for the number of goals X scored by a soccer team in a single match is shown in the table below.<br><br><table class='data-table'><tr><th>x</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr><tr><td><b>P(X = x)</b></td><td>0.08</td><td>0.22</td><td>0.30</td><td>0.25</td><td>0.10</td><td>0.05</td></tr></table><br><b>(a)</b> Verify that this is a valid probability distribution. Show your work.<br><b>(b)</b> Find P(X ≥ 3). Interpret your answer in context.<br><b>(c)</b> Calculate the expected value E(X) = μ_X. Show all work and interpret in context.<br><b>(d)</b> Calculate the standard deviation σ_X. Show all work and round to two decimal places. Interpret the standard deviation in context." },
+    { id: "frq4", topic: mcqTopics[0], title: "FRQ 4: Two-Way Tables and Probability (10 points)", prompt: "In a survey of 200 students at a small high school, Language Arts teachers wanted to see if there is a correlation between preferred fiction genre and preferred reading format, the results are summarized in the following table.<br><br><table class='data-table'><tr><th>Genre</th><th>Print book</th><th>E-book</th><th>Audiobook</th><th>Total</th></tr><tr><td><b>Fantasy / Sci-Fi</b></td><td>34</td><td>22</td><td>14</td><td>70</td></tr><tr><td><b>Mystery / Thriller</b></td><td>26</td><td>18</td><td>31</td><td>75</td></tr><tr><td><b>Romance</b></td><td>20</td><td>25</td><td>10</td><td>55</td></tr><tr><td><b>Total</b></td><td>80</td><td>65</td><td>55</td><td>200</td></tr></table><br>Suppose that one of these students is randomly chosen. Answer each of the following questions using appropriate probability notation, and a decimal approximation. Then interpret each answer in context with a complete sentence.<br><br><b>(a)</b> What is the probability that the student prefers mystery/thriller or E-book?<br><b>(b)</b> What is the probability that a student who prefers Romance also prefers to use an Audiobook?<br><b>(c)</b> What is the probability that a student who prefers to use a print book also prefers to read Fantasy/Sci-Fi?" },
+   { id: "frq5", topic: mcqTopics[5], title: "FRQ 5: Binomial Probability (10 points)", prompt: "Sea turtle nest hatching: A conservation team checks 50 eggs from some loggerhead nests. Each egg has about a 70% chance of hatching. Let X = the number of hatchlings.<br><br><b>(a)</b> Verify that the conditions for a binomial setting are satisfied. Use complete sentences and context, just like BIFS would do.<br><br><b>(b)</b> How many eggs do you expect to hatch in a group of 50 eggs? With what standard deviation? Show your work, including the formulas used and interpret them both in context.<br><br><b>(c)</b> What is the probability that exactly 30 eggs hatch? Show your work: express the probability question symbolically, show your calculator speak, and interpret your answer in context.<br><br><b>(d)</b> What is the probability that 42 or more eggs hatch? Show your work: Express the probability question symbolically, show your calculator speak, and interpret your answer in context.<br><br><b>(e)</b> If a researcher wanted to calculate the probability from part d using a normal approximation, would they be justified in doing so? Explain your answer concisely." },
+
+    { id: "frq6", topic: mcqTopics[2], title: "FRQ 6: Tree Diagram", prompt: "In a certain population of birds, only 3% have blue eyes. Of those who have blue eyes, 56% have a curved beak. Of those who do not have blue eyes, 13% have a straight beak. If one of these birds is trapped in a net (randomly), answer each of the following questions. Show your work: express the probability question symbolically, show your math, and interpret your answer in context. Consider drawing a tree diagram.<br><br><b>(a)</b> What is the probability that the bird has blue eyes and a straight beak?<br><b>(b)</b> What is the probability that the bird has a curved beak?" }
+];
+
+
+        let activeExamQuestions = [];
+        let studentAnswers = {};
+        let currentBBIndex = 0;
+        let currentStudentName = "";
+        let currentStudentPeriod = "";
+        let isExamActive = false;
+        let lockoutCount = 0;
+        let departureLogs = [];
+        let teacherPasscode = "1234";
+
+        function initBank() {
+            if (window.PRE_CONFIGURED_TEST_DATA) {
+                const testData = window.PRE_CONFIGURED_TEST_DATA;
+                teacherPasscode = testData.passcode || "1234";
+                
+                activeExamQuestions = [];
+                (testData.mcqs || []).forEach(id => {
+                    const q = mcqBank.find(item => item.id === id);
+                    if (q) activeExamQuestions.push({ ...q, type: 'mcq' });
+                });
+                (testData.frqs || []).forEach(id => {
+                    const q = frqBank.find(item => item.id === id);
+                    if (q) activeExamQuestions.push({ ...q, type: 'frq' });
+                });
+
+                document.getElementById('teacher-portal').classList.add('hidden');
+                document.getElementById('bb-exam-title').innerText = testData.title || "AP Statistics Exam";
+                openModal('student-name-modal');
+                setupLockoutTracker();
+                return;
+            }
+
+            const mcqContainer = document.getElementById('mcq-bank-container');
+            mcqContainer.innerHTML = mcqBank.map(item => `
+                <div class="item-card">
+                    <input type="checkbox" id="${item.id}" class="mcq-checkbox" onchange="updateCounts()">
+                    <div class="item-content">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-topic">${item.topic}</div>
+                        <div class="item-full-text">
+                            <div>${item.prompt}</div>
+                            <div style="margin-top: 6px; font-weight: 500; color: #444;">
+                                ${item.options.join(' &nbsp;&nbsp;&nbsp;&nbsp; ')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            const frqContainer = document.getElementById('frq-bank-container');
+            frqContainer.innerHTML = frqBank.map(item => `
+                <div class="item-card">
+                    <input type="checkbox" id="${item.id}" class="frq-checkbox" onchange="updateCounts()">
+                    <div class="item-content">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-topic">${item.topic}</div>
+                        <div class="item-full-text">${item.prompt}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            setupLockoutTracker();
+        }
+
+        function updateCounts() {
+            const mcqCount = document.querySelectorAll('.mcq-checkbox:checked').length;
+            const frqCount = document.querySelectorAll('.frq-checkbox:checked').length;
+            document.getElementById('selected-mcq-count').innerText = mcqCount;
+            document.getElementById('selected-frq-count').innerText = frqCount;
+        }
+
+        function exportStandaloneStudentHTML() {
+            const title = document.getElementById('test-title-input').value;
+            const passcode = document.getElementById('teacher-passcode-input').value.trim() || "1234";
+            const selectedMCQs = Array.from(document.querySelectorAll('.mcq-checkbox:checked')).map(cb => cb.id);
+            const selectedFRQs = Array.from(document.querySelectorAll('.frq-checkbox:checked')).map(cb => cb.id);
+
+            if (selectedMCQs.length === 0 && selectedFRQs.length === 0) {
+                alert('Please select at least one MCQ or FRQ to export a student test.');
+                return;
+            }
+
+            const testData = { title, passcode, mcqs: selectedMCQs, frqs: selectedFRQs };
+            const fullHTML = document.documentElement.outerHTML;
+
+            const injectionScript = `<script>window.PRE_CONFIGURED_TEST_DATA = ${JSON.stringify(testData)};<\/script>`;
+            const modifiedHTML = fullHTML.replace('</head>', `${injectionScript}\n</head>`);
+
+            const blob = new Blob([modifiedHTML], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_Student_Exam.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function confirmStudentEntryAndStart() {
+            const name = document.getElementById('entry-student-name').value.trim();
+            const period = document.getElementById('entry-student-period').value.trim();
+
+            if (!name) {
+                alert('Please enter your full name to start.');
+                return;
+            }
+
+            currentStudentName = name;
+            currentStudentPeriod = period || "N/A";
+
+            closeModal('student-name-modal');
+            document.getElementById('student-view').classList.remove('hidden');
+            document.getElementById('bb-student-tag').innerText = `— Student: ${currentStudentName} (${currentStudentPeriod})`;
+
+            try {
+    const saved = JSON.parse(localStorage.getItem(getSaveKey()));
+    if (saved) {
+        studentAnswers = saved.answers || {};
+        currentBBIndex = saved.index || 0;
+        lockoutCount = saved.lockoutCount || 0;
+        departureLogs = saved.departureLogs || [];
+    }
+} catch (e) {}
+isExamActive = true;
+if (lockoutCount >= 2) openModal('hard-lockout-modal');
+if (lockoutCount >= 2) openModal('hard-lockout-modal');
+            renderBBQuestion();
+        }
+
+        function setupLockoutTracker() {
+if (window._lockoutAttached) return;
+window._lockoutAttached = true;
+            document.addEventListener('visibilitychange', () => {
+                if (!isExamActive) return;
+                if (document.hidden) {
+                    lockoutCount++;
+                    const timestamp = new Date().toLocaleTimeString();
+                    departureLogs.push(`Window left at ${timestamp}`);
+                    
+                    if (lockoutCount === 1) {
+                        openModal('lockout-warning-modal');
+                    } else if (lockoutCount >= 2) {
+                        closeModal('lockout-warning-modal');
+                        openModal('hard-lockout-modal');
+                    }
+                }
+            });
+        }
+
+        function attemptTeacherUnlock() {
+            const entered = document.getElementById('teacher-unlock-passcode').value.trim();
+            if (entered === teacherPasscode) {
+                document.getElementById('teacher-unlock-passcode').value = '';
+                closeModal('hard-lockout-modal');
+                alert('Exam successfully unlocked by teacher.');
+            } else {
+                alert('Incorrect passcode. Please ask your teacher to unlock.');
+            }
+        }
+
+        function prepareAndPrintPaperTest() {
+            document.body.className = "printing-blank-paper";
+            const title = document.getElementById('test-title-input').value;
+            const packet = document.getElementById('print-test-packet');
+            
+            let selectedMCQs = [];
+            let selectedFRQs = [];
+
+            document.querySelectorAll('.mcq-checkbox:checked').forEach(cb => {
+                const item = mcqBank.find(q => q.id === cb.id);
+                if (item) selectedMCQs.push(item);
+            });
+
+            document.querySelectorAll('.frq-checkbox:checked').forEach(cb => {
+                const item = frqBank.find(q => q.id === cb.id);
+                if (item) selectedFRQs.push(item);
+            });
+
+            if (selectedMCQs.length === 0 && selectedFRQs.length === 0) {
+                alert('Please select at least one question to print.');
+                return;
+            }
+
+            let html = `
+                <div class="print-header">
+                    <h1>${title}</h1>
+                    <p style="margin-top: 5px; font-weight: bold;">AP Statistics Assessment Packet</p>
+                </div>
+                <div class="print-student-info">
+                    <span>Student Name: ____________________________________</span>
+                    <span>Date: ________________</span>
+                    <span>Period: ______</span>
+                </div>
+            `;
+
+            if (selectedMCQs.length > 0) {
+                html += `<h2 style="border-bottom: 2px solid black; padding-bottom: 4px; margin-bottom: 15px;">Section I: Multiple Choice Questions</h2>`;
+                selectedMCQs.forEach((q, idx) => {
+                    html += `
+                        <div class="print-item">
+                            <div class="print-item-title">Question ${idx + 1}</div>
+                            <div>${q.prompt}</div>
+                            <div class="print-mcq-choices">
+                                ${q.options.map(opt => `<div>[ &nbsp; ] ${opt}</div>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            if (selectedFRQs.length > 0) {
+                html += `<div style="page-break-before: always;"></div>`;
+                html += `<h2 style="border-bottom: 2px solid black; padding-bottom: 4px; margin-bottom: 15px;">Section II: Free Response Questions</h2>`;
+                selectedFRQs.forEach((q, idx) => {
+                    html += `
+                        <div class="print-item">
+                            <div class="print-item-title">Question ${idx + 1}</div>
+                            <div>${q.prompt}</div>
+                            <div style="margin-top: 10px; font-weight: bold;">Show all work, formulas, and contextual interpretations below:</div>
+                            <div class="print-frq-workspace"></div>
+                        </div>
+                    `;
+                });
+            }
+
+            packet.innerHTML = html;
+            window.print();
+        }
+
+        function printAnswerKey() {
+    const title = document.getElementById('test-title-input').value;
+    const mcqs = Array.from(document.querySelectorAll('.mcq-checkbox:checked')).map(cb => mcqBank.find(q => q.id === cb.id)).filter(Boolean);
+    if (mcqs.length === 0) {
+        alert('Please select at least one MCQ to print a key.');
+        return;
+    }
+    document.body.className = "printing-blank-paper";
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+    let html = `<div class="print-header"><h1>${title}</h1><p style="margin-top:5px;font-weight:bold;">ANSWER KEY - TEACHER COPY</p></div>`;
+    html += `<h2 style="border-bottom:2px solid black;padding-bottom:4px;margin-bottom:15px;">Multiple Choice</h2>`;
+    mcqs.forEach((q, idx) => {
+        html += `<div style="margin-bottom:6px;"><strong>Question ${idx + 1}:</strong> ${letters[q.correct]} &nbsp; <small>(${q.id})</small></div>`;
+    });
+    document.getElementById('print-test-packet').innerHTML = html;
+    window.print();
+}
+
+function printGradedSubmissionPDF() {
+            document.body.className = "printing-graded-submission";
+            window.print();
+        }
+
+        function launchDigitalBluebookExam() {
+            activeExamQuestions = [];
+            
+            document.querySelectorAll('.mcq-checkbox:checked').forEach(cb => {
+                const item = mcqBank.find(q => q.id === cb.id);
+                if (item) activeExamQuestions.push({ ...item, type: 'mcq' });
+            });
+
+            document.querySelectorAll('.frq-checkbox:checked').forEach(cb => {
+                const item = frqBank.find(q => q.id === cb.id);
+                if (item) activeExamQuestions.push({ ...item, type: 'frq' });
+            });
+
+            if (activeExamQuestions.length === 0) {
+                alert('Please select at least one MCQ or FRQ before previewing.');
+                return;
+            }
+
+            currentStudentName = "Teacher Preview";
+            currentStudentPeriod = "Preview Mode";
+
+            document.getElementById('teacher-portal').classList.add('hidden');
+            document.getElementById('student-view').classList.remove('hidden');
+            document.getElementById('bb-exam-title').innerText = document.getElementById('test-title-input').value;
+            document.getElementById('bb-student-tag').innerText = `— (${currentStudentName})`;
+            
+            try {
+    const saved = JSON.parse(localStorage.getItem(getSaveKey()));
+    if (saved) {
+        studentAnswers = saved.answers || {};
+        currentBBIndex = Math.min(saved.index || 0, activeExamQuestions.length - 1);
+    }
+} catch (e) {}
+isExamActive = true;
+            renderBBQuestion();
+        }
+
+        function renderBBQuestion() {
+            const q = activeExamQuestions[currentBBIndex];
+            document.getElementById('bb-question-number').innerText = `Question ${currentBBIndex + 1}`;
+            document.getElementById('bb-question-prompt').innerHTML = q.prompt;
+            document.getElementById('bb-question-tracker').innerText = `Question ${currentBBIndex + 1} of ${activeExamQuestions.length}`;
+
+            const mcqContainer = document.getElementById('bb-mcq-container');
+            const frqContainer = document.getElementById('bb-frq-container');
+
+            if (q.type === 'mcq') {
+                mcqContainer.classList.remove('hidden');
+                frqContainer.classList.add('hidden');
+
+                mcqContainer.innerHTML = q.options.map((opt, idx) => `
+                    <label class="mcq-option-label">
+                        <input type="radio" name="mcq_choice" value="${idx}" ${studentAnswers[q.id] === idx ? 'checked' : ''} onchange="recordAnswer('${q.id}', ${idx})">
+                        <span>${opt}</span>
+                    </label>
+                `).join('');
+            } else {
+                mcqContainer.classList.add('hidden');
+                frqContainer.classList.remove('hidden');
+
+                const textarea = document.getElementById('frq-response-input');
+                textarea.value = studentAnswers[q.id] || '';
+                textarea.oninput = (e) => recordAnswer(q.id, e.target.value);
+            }
+
+            const nextBtn = document.getElementById('bb-next-btn');
+            if (currentBBIndex === activeExamQuestions.length - 1) {
+                nextBtn.innerText = "Submit Test ✓";
+                nextBtn.style.background = "var(--correct-green)";
+                nextBtn.onclick = submitStudentExam;
+            } else {
+                nextBtn.innerText = "Next →";
+                nextBtn.style.background = "var(--cb-blue)";
+                nextBtn.onclick = () => navigateQuestion(1);
+            }
+        }
+
+        function navigateQuestion(direction) {
+    if (currentBBIndex + direction >= 0 && currentBBIndex + direction < activeExamQuestions.length) {
+        currentBBIndex += direction;
+        try {
+            localStorage.setItem(getSaveKey(), JSON.stringify({
+                answers: studentAnswers,
+                index: currentBBIndex,
+                lockoutCount: lockoutCount,
+                departureLogs: departureLogs
+            }));
+        } catch (e) {}
+        renderBBQuestion();
+    }
+}
+
+        function recordAnswer(qId, val) {
+    studentAnswers[qId] = val;
+    try {
+        localStorage.setItem(getSaveKey(), JSON.stringify({
+            answers: studentAnswers,
+            index: currentBBIndex,
+            lockoutCount: lockoutCount,
+            departureLogs: departureLogs
+        }));
+    } catch (e) {}
+}
+
+function getSaveKey() {
+    return 'apstats_unit2_' + currentStudentName + '_' + (window.PRE_CONFIGURED_TEST_DATA ? window.PRE_CONFIGURED_TEST_DATA.title : 'preview');
+}
+
+        function insertSymbol(symbol) {
+            if (!symbol) return;
+            const textarea = document.getElementById('frq-response-input');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            textarea.value = text.substring(0, start) + symbol + text.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + symbol.length;
+            textarea.focus();
+            recordAnswer(activeExamQuestions[currentBBIndex].id, textarea.value);
+        }
+
+        function submitStudentExam() {
+            if (!confirm('Are you sure you want to submit your exam?')) return;
+
+            isExamActive = false;
+            document.getElementById('student-view').classList.add('hidden');
+            document.getElementById('teacher-review-view').classList.remove('hidden');
+
+            document.getElementById('review-test-title').innerText = document.getElementById('bb-exam-title').innerText;
+            document.getElementById('review-student-name').innerText = currentStudentName;
+            document.getElementById('review-student-period').innerText = currentStudentPeriod;
+
+            let mcqCorrect = 0;
+            let mcqTotal = 0;
+
+            const mcqList = document.getElementById('review-mcq-list');
+            mcqList.innerHTML = '';
+
+            const frqList = document.getElementById('review-frq-list');
+            frqList.innerHTML = '';
+
+            activeExamQuestions.forEach((q, idx) => {
+                if (q.type === 'mcq') {
+                    mcqTotal++;
+                    const studentChoice = studentAnswers[q.id];
+                    const isCorrect = studentChoice === q.correct;
+                    if (isCorrect) mcqCorrect++;
+
+                    mcqList.innerHTML += `
+                        <div style="background: white; border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; margin-bottom: 12px; page-break-inside: avoid;">
+                            <div style="font-weight: bold; margin-bottom: 6px;">
+                                ${isCorrect ? '✅ <span style="color:var(--correct-green)">CORRECT</span>' : '❌ <span style="color:var(--incorrect-red)">INCORRECT</span>'} — Q${idx+1}
+                            </div>
+                            <div style="margin-bottom: 8px;">${q.prompt}</div>
+                            <p style="font-size:0.9rem; margin-top: 6px;"><strong>Student Selected:</strong> ${studentChoice !== undefined ? q.options[studentChoice] : '<em>No Answer Selected</em>'}</p>
+                            <p style="font-size:0.9rem; color: var(--correct-green); margin-top: 2px;"><strong>Correct Key:</strong> ${q.options[q.correct]}</p>
+                        </div>
+                    `;
+                } else {
+                    frqList.innerHTML += `
+                        <div style="background: white; border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; margin-bottom: 12px; page-break-inside: avoid;">
+                            <div style="font-weight: bold; margin-bottom: 6px; color: var(--cb-blue);">Q${idx+1}</div>
+                            <div style="margin-bottom: 12px;">${q.prompt}</div>
+                            <div style="font-weight: bold; margin-bottom: 4px;">Student Response:</div>
+                            <div style="background: #f8f9fa; border: 1px solid var(--border-color); border-left: 4px solid var(--cb-blue); padding: 12px; font-family: monospace; white-space: pre-wrap; font-size: 0.95rem;">${studentAnswers[q.id] ? escapeText(studentAnswers[q.id]) : 'No Response Provided.'}}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            document.getElementById('mcq-score-banner').innerText = `MCQ Score: ${mcqCorrect} / ${mcqTotal} Correct (${mcqTotal > 0 ? Math.round((mcqCorrect/mcqTotal)*100) : 0}%)`;
+
+            const auditBanner = document.getElementById('security-audit-banner');
+            if (lockoutCount === 0) {
+                auditBanner.style.background = "#e6f4ea";
+                auditBanner.style.borderColor = "#28a745";
+                auditBanner.style.color = "#137333";
+                auditBanner.innerHTML = `<strong>🛡️ Security Audit Passed:</strong> Zero tab or window departures recorded during test session.`;
+            } else {
+                auditBanner.style.background = "#f8d7da";
+                auditBanner.style.borderColor = "#dc3545";
+                auditBanner.style.color = "#721c24";
+                auditBanner.innerHTML = `<strong>⚠️ Security Audit Flag:</strong> Student left the test window <strong>${lockoutCount} time(s)</strong> during the test session.<br><small>${departureLogs.join(' | ')}</small>`;
+            }
+                          // ===== SEND TO TEACHER EMAIL (paste just before the last } of submitStudentExam) =====
+                  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuBoQDp9aAqDyndvMTTvpbaFQeW_kYkt5YsCIpyf8yzOpVPUsEjMZzUZheh4wMpTaAAQ/exec';
+
+                  const sendPayload = {
+                      name: currentStudentName,
+                      period: currentStudentPeriod,
+                      mcqCorrect: mcqCorrect,
+                      mcqTotal: mcqTotal,
+                      lockoutCount: lockoutCount,
+                      departureLogs: departureLogs,
+                      frqs: activeExamQuestions
+                          .map((q, idx) => ({ q: q, idx: idx }))
+                          .filter(item => item.q.type !== 'mcq')
+                          .map(item => ({
+                              label: 'Q' + (item.idx + 1),
+                              prompt: String(item.q.prompt).replace(/<[^>]*>/g, ' '),
+                              response: studentAnswers[item.q.id] || ''
+                          }))
+                  };
+
+                  const statusBox = document.createElement('div');
+                  statusBox.style.cssText = 'padding:14px; margin:12px 0; border-radius:6px; font-weight:bold; background:#fff3cd; border:1px solid #ffc107; color:#664d03;';
+                  statusBox.innerText = 'Sending your answers to your teacher... please wait.';
+                  document.getElementById('teacher-review-view').prepend(statusBox);
+const reviewParts = Array.from(document.getElementById('teacher-review-view').children).filter(c => c !== statusBox);
+reviewParts.forEach(c => { c.style.display = 'none'; });
+
+                  fetch(SCRIPT_URL, {
+                      method: 'POST',
+                      mode: 'no-cors',
+                      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                      body: JSON.stringify(sendPayload)
+                  }).then(() => {
+                      statusBox.style.background = '#e6f4ea';
+                      statusBox.style.borderColor = '#28a745';
+                      statusBox.style.color = '#137333';
+                      statusBox.innerText = '✅ Received! Your teacher has your answers. You do not need to submit anything else.';
+                  }).catch(() => {
+                      statusBox.style.background = '#f8d7da';
+                      statusBox.style.borderColor = '#dc3545';
+                      statusBox.style.color = '#721c24';
+                      statusBox.innerText = '⚠️ Could not send. Save this page as a PDF and give it to your teacher.';
+reviewParts.forEach(c => { c.style.display = ''; });
+                  });
+}
+
+        function escapeText(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        window.onload = initBank;
+    </script>
+
+</body></html>
